@@ -1,0 +1,9 @@
+ticket_id,customer,date,priority,category,summary,status
+T-1001,GreenMart,2025-10-01,High,Forecasting,"Weekly forecast failed to refresh for 12 stores in the Northeast region.",Open
+T-1002,UrbanBasket,2025-10-03,Medium,Integrations,"Shopify connector intermittently timing out during nightly sync.",In Progress
+T-1003,StyleHub,2025-10-04,Low,Dashboards,"Executive dashboard export button missing for viewer role.",Resolved
+T-1004,GreenMart,2025-10-06,Critical,Inventory Alerts,"False positive stockout alerts triggered for seasonal SKUs.",Open
+T-1005,Northline Retail,2025-10-07,High,Security,"Customer requested updated SOC 2 Type II report.",In Progress
+T-1006,UrbanBasket,2025-10-08,Medium,Customer Segmentation,"Segments not refreshing for loyalty customers.",Open
+T-1007,ValueKart,2025-10-09,Low,CSV Uploads,"CSV upload accepted file but skipped 84 rows due to malformed dates.",Resolved
+T-1008,StyleHub,2025-10-10,High,Integrations,"BigQuery ingestion lag exceeding 9 hours.",Open
