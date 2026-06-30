@@ -14,6 +14,8 @@ from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import ONNXMiniLM_L6_
 from prompts import build_rag_messages as build_messages
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+CHROMA_DIR = Path(__file__).resolve().parent.parent / ".chroma"
+MANIFEST_PATH = CHROMA_DIR / "manifest.json"
 COLLECTION_NAME = "knowledge_base"
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
@@ -98,24 +100,82 @@ def load_documents() -> list[dict]:
     return docs
 
 
-def build_index():
-    """Embed all document chunks and store them in a fresh ChromaDB collection.
+def _data_manifest() -> dict:
+    """Fingerprint data files so we know when the index is stale."""
+    manifest = {}
+    for path in sorted(DATA_DIR.iterdir()):
+        if path.suffix in {".md", ".csv"}:
+            stat = path.stat()
+            manifest[path.name] = {"mtime": stat.st_mtime, "size": stat.st_size}
+    return manifest
 
-    Rebuilds the collection on each call. Sets the module-level _collection cache.
-    Returns the collection and the list of loaded document chunks.
+
+def _load_manifest() -> dict | None:
+    if not MANIFEST_PATH.exists():
+        return None
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
+def _save_manifest(manifest: dict, chunk_count: int) -> None:
+    CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+    MANIFEST_PATH.write_text(
+        json.dumps({"files": manifest, "chunk_count": chunk_count}, indent=2),
+        encoding="utf-8",
+    )
+
+
+def _try_load_persisted_index(client, embedding_fn, manifest: dict):
+    """Return the existing collection if on-disk index matches current data."""
+    stored = _load_manifest()
+    if not stored or stored.get("files") != manifest:
+        return None
+
+    try:
+        collection = client.get_collection(
+            COLLECTION_NAME,
+            embedding_function=embedding_fn,
+        )
+    except Exception:
+        return None
+
+    expected = stored.get("chunk_count")
+    if expected is None or collection.count() != expected:
+        return None
+
+    return collection
+
+
+def build_index(force: bool = False):
+    """Load or build the ChromaDB index, persisting to disk between runs.
+
+    Rebuilds only when data files change, the index is missing, or force=True.
+    Sets the module-level _collection cache.
+    Returns the collection and loaded document chunks (empty list on cache hit).
     """
     global _collection
+
+    print("Connecting to ChromaDB...", flush=True)
+    CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+
+    print("Loading embedding model (ONNX)...", flush=True)
+    embedding_fn = ONNXMiniLM_L6_V2()
+    print("  Model ready", flush=True)
+
+    manifest = _data_manifest()
+
+    if not force:
+        collection = _try_load_persisted_index(client, embedding_fn, manifest)
+        if collection is not None:
+            print("Using persisted index (data unchanged)...", flush=True)
+            print(f"  {collection.count()} chunks ready", flush=True)
+            _collection = collection
+            return _collection, []
 
     print("Loading documents...", flush=True)
     documents = load_documents()
     print(f"  Found {len(documents)} chunks", flush=True)
-
-    print("Loading embedding model (ONNX, no PyTorch)...", flush=True)
-    embedding_fn = ONNXMiniLM_L6_V2()
-    print("  Model ready", flush=True)
-
-    print("Connecting to ChromaDB...", flush=True)
-    client = chromadb.Client()
+    print("Indexing chunks...", flush=True)
 
     try:
         client.delete_collection(COLLECTION_NAME)
@@ -127,13 +187,13 @@ def build_index():
         embedding_function=embedding_fn,
     )
 
-    print("Indexing chunks...", flush=True)
     texts = [doc["text"] for doc in documents]
     collection.add(
         ids=[str(i) for i in range(len(documents))],
         documents=texts,
         metadatas=[{k: v for k, v in doc.items() if k != "text"} for doc in documents],
     )
+    _save_manifest(manifest, len(documents))
     print("  Indexing complete", flush=True)
 
     _collection = collection
