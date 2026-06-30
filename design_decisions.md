@@ -39,7 +39,7 @@ footprint consistent with the ONNX choice above.
 
 All 20 evaluation questions from the assignment brief were run through an automated evaluation script (`app/run_evaluation.py`) that calls the live pipeline end-to-end. The script captures, for every question: the routing decision (tool vs. RAG vs. RAG fallback), the tool name and extracted arguments where applicable, the full answer text, and the retrieved source chunks. Results are written to both a structured JSON file.
 
-These responses were then carried over to the evaluation markdown file (`evaluation_results.md`) where grading was done by hand after the automated run, comparing each answer against the the source documents directly. Each question was then given a correctness value of 'Correct', 'Partially Correct', or 'Incorrect'. Two genuine failures were found this way — see Known Limitations — with the root cause and proposed fix documented below.
+These responses were then carried over to the evaluation markdown file (`evaluation_results.md`) where grading was done by hand after the automated run, comparing each answer against the the source documents directly. Each question was then given a correctness value of 'Correct', 'Partially Correct', or 'Incorrect'. The automated evaluation identified four partially correct cases and one incorrect structured-output case. These were analyzed manually by comparing the generated responses against the source documents. The identified issues are discussed in the Known Limitations section together with potential improvements.
 
 This automated-evaluation approach was chosen over manually running and transcribing
 each query individually to make the evaluation reproducible (anyone can re-run
@@ -50,28 +50,9 @@ each query individually to make the evaluation reproducible (anyone can re-run
 ## Known Limitations + Potential Improvements
 
 **Tool orchestration is regex-based and can misroute compound or table-style
-requests.** The keyword-pattern router works reliably for single-entity, single-intent
-queries (e.g. "What is GreenMart's renewal risk?") but struggles with requests that
-need multiple tool calls or don't cleanly match one tool's pattern set. Concretely,
-"Create a customer risk table with customer, plan, renewal date, open tickets, and
-risk level" (evaluation question #18 / #24) was misrouted to `lookup_tickets` with
-placeholder schema-type strings as arguments (the argument-extraction LLM echoed back
-literal type names like `"string"` instead of leaving unmentioned fields empty),
-producing an incorrect answer. A more robust fix would be a dedicated structured-output
-handler that recognizes table/multi-customer requests and either calls
-`classify_renewal_risk` per customer or routes through an LLM-driven planning step
-capable of multi-tool calls, rather than a single regex-matched dispatch.
+requests.** The regex-based router assumes a single tool invocation per query. Consequently, table-generation or multi-entity requests (evaluation question #18) may be routed to a tool that cannot satisfy the full request, resulting in incorrect structured output. A more robust fix would be a dedicated structured-output handler that recognizes table/multi-customer requests and either calls `classify_renewal_risk` per customer or routes through an LLM-driven planning step capable of multi-tool calls, rather than a single regex-matched dispatch.
 
-**Grounding is not airtight against plausible-sounding unsupported inferences.** When
-asked whether the platform supports Azure Synapse (evaluation question #13/#19), the
-model correctly identified that Azure Synapse isn't in the documented data source
-list, but it added an unsupported claim that "BigQuery can be used to connect
-to Azure Synapse" — a plausible-sounding inference not present in any retrieved
-context. The system prompt instructs the model to answer only from context, but this
-shows that instruction alone doesn't fully prevent a small local model from adding
-adjacent claims it considers reasonable. A stronger guardrail (e.g. explicit
-instruction to flag any claim not directly traceable to a cited chunk, or a
-post-generation verification pass) would reduce this risk.
+**The generation step does not always fully synthesize all retrieved evidence.** During evaluation, two questions (#17 and #19) retrieved all of the information needed to answer correctly, but the LLM produced only partially complete answers by using only a subset of the retrieved context. The retrieval stage therefore succeeded, but the generation stage did not consistently integrate every relevant chunk into a comprehensive response. This is a limitation of the current single-pass generation pipeline. Although the relevant evidence is retrieved successfully, the model is not explicitly required to account for every retrieved chunk before producing an answer.
 
 **No chunk-length guard.** Markdown sections are chunked as whole `##` blocks with no
 sub-splitting. If a section significantly exceeded the embedding model's input limit,
@@ -79,10 +60,4 @@ it would be silently truncated. The current dataset's sections are short enough 
 this hasn't been observed, but it's not actively guarded against.
 
 **No retrieval score/distance filtering.** `retrieve()` always returns the top-`k`
-chunks regardless of similarity score, which means low-relevance chunks can be
-included in context on borderline queries, slightly increasing noise.
-
-**Index rebuilds on every run.** ChromaDB uses an in-memory client with no
-persistence, so the full corpus is re-embedded and re-indexed each time `main.py` or
-`run_evaluation.py` starts. Fine for this corpus size; would not scale to a larger
-production knowledge base without a persistent vector store.
+chunks regardless of similarity score, which may introduce low-relevance context and provides no mechanism for prioritizing the most relevant evidence before generation.
