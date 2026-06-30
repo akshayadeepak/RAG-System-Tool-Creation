@@ -67,7 +67,7 @@ Run the full automated evaluation (all 20 assignment questions):
 python app/run_evaluation.py
 ```
 
-This writes `examples/evaluation_raw.json`.
+This writes `results/evaluation_raw.json`.
 
 You can override the embedding model or Ollama settings via environment variables:
 
