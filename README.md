@@ -61,8 +61,7 @@ Run a single query:
 python app/main.py "Calculate the first-year cost for the Growth Plan on an annual contract for a nonprofit customer."
 ```
 
-Run the full automated evaluation (all 16 assignment questions + 4 structured-output
-extensions):
+Run the full automated evaluation (all 20 assignment questions):
 
 ```bash
 python app/run_evaluation.py
