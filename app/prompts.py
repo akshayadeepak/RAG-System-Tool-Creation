@@ -1,6 +1,6 @@
-"""
-Prompt templates for the Northstar Insights RAG assistant.
-"""
+"""Prompt templates for the Northstar Insights RAG assistant."""
+
+import json
 
 # RAG generation prompt
 RAG_SYSTEM = """You are an internal assistant for Northstar Insights employees.
@@ -13,25 +13,17 @@ If the context does not contain the answer, say: "I could not find this in the k
 
 
 def build_rag_messages(query: str, chunks: list[dict]) -> list[dict]:
-    """
-    Build the message list for a RAG generation call.
-
-    Args:
-        query:  The user's question.
-        chunks: Retrieved context chunks from the vector store.
-
-    Returns:
-        A list of messages in Ollama/OpenAI chat format.
-    """
+    """Build Ollama chat messages for RAG generation from retrieved chunks."""
     context = "\n\n---\n\n".join(
         f"Source: {chunk['metadata']['source']} | {chunk['metadata']['section']}\n"
         f"{chunk['text']}"
         for chunk in chunks
     )
 
-    user_content = f"""Context: {context}
+    user_content = f"""Context:
+{context}
 
-    Question: {query}"""
+Question: {query}"""
 
     return [
         {"role": "system", "content": RAG_SYSTEM},
@@ -48,25 +40,13 @@ Do not include any explanation, preamble, or markdown formatting."""
 
 
 def build_extraction_messages(query: str, tool_name: str, tool_schema: dict) -> list[dict]:
-    """
-    Build the message list for a tool argument extraction call.
-
-    Args:
-        query:       The user's natural language query.
-        tool_name:   The name of the tool to extract arguments for.
-        tool_schema: The tool's parameter schema (from TOOL_DEFINITIONS).
-
-    Returns:
-        A list of messages in Ollama/OpenAI chat format.
-    """
-    import json
-
+    """Build Ollama chat messages for extracting tool arguments from a user query."""
     user_content = f"""Tool: {tool_name}
-    Schema: {json.dumps(tool_schema, indent=2)}
+Schema: {json.dumps(tool_schema, indent=2)}
 
-    User query: {query}
+User query: {query}
 
-    Extract the arguments as a JSON object."""
+Extract the arguments as a JSON object."""
 
     return [
         {"role": "system", "content": EXTRACTION_SYSTEM},
@@ -84,26 +64,14 @@ Do not invent any information not present in the tool result."""
 
 
 def build_format_messages(query: str, tool_name: str, tool_result: dict) -> list[dict]:
-    """
-    Build the message list for formatting a tool result into natural language.
-
-    Args:
-        query:       The original user query.
-        tool_name:   The name of the tool that was called.
-        tool_result: The structured result returned by the tool.
-
-    Returns:
-        A list of messages in Ollama/OpenAI chat format.
-    """
-    import json
-
+    """Build Ollama chat messages for turning a tool result into natural language."""
     user_content = f"""User query: {query}
 
-    Tool called: {tool_name}
+Tool called: {tool_name}
 
-    Tool result: {json.dumps(tool_result, indent=2)}
+Tool result: {json.dumps(tool_result, indent=2)}
 
-    Write a clear, complete answer to the user's query based on this result."""
+Write a clear, complete answer to the user's query based on this result."""
 
     return [
         {"role": "system", "content": FORMAT_SYSTEM},

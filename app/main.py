@@ -18,7 +18,7 @@ from typing import Optional
 
 import httpx
 
-from rag import ask, build_index, retrieve, OLLAMA_BASE_URL, OLLAMA_MODEL
+from rag import ask, build_index, OLLAMA_BASE_URL, OLLAMA_MODEL
 from tools import dispatch_tool, TOOL_DEFINITIONS
 from prompts import build_extraction_messages, build_format_messages
 
@@ -136,7 +136,10 @@ def extract_tool_args(query: str, tool_name: str) -> dict:
 
 
 def format_tool_result(query: str, tool_name: str, result: dict) -> str:
-    """Ask the LLM to format a tool result into a natural-language response."""
+    """Ask the LLM to generate a natural-language summary of a tool result.
+
+    Falls back to pretty-printed JSON if the formatting call fails.
+    """
     messages = build_format_messages(query, tool_name, result)
 
     payload = {
@@ -174,7 +177,7 @@ def format_tool_result(query: str, tool_name: str, result: dict) -> str:
     return "".join(parts)
 
 
-def handle_query(query: str, k: int = 8, verbose: bool = False) -> dict:
+def handle_query(query: str, k: int = 8) -> dict:
     """
     Route a query to a tool or the RAG pipeline and return a structured result.
 
@@ -194,11 +197,9 @@ def handle_query(query: str, k: int = 8, verbose: bool = False) -> dict:
     if tool_name:
         print(f"[router] Detected tool: {tool_name}", flush=True)
 
-        # Extract arguments
         args = extract_tool_args(query, tool_name)
         print(f"[router] Extracted args: {args}", flush=True)
 
-        # Dispatch tool
         try:
             tool_result = dispatch_tool(tool_name, args)
         except Exception as e:
@@ -216,7 +217,6 @@ def handle_query(query: str, k: int = 8, verbose: bool = False) -> dict:
                 "sources": rag_result["sources"],
             }
 
-        # Format result into natural language
         print("[router] Formatting tool result...", flush=True)
         answer = format_tool_result(query, tool_name, tool_result)
 
@@ -245,6 +245,11 @@ def handle_query(query: str, k: int = 8, verbose: bool = False) -> dict:
 
 
 def print_result(result: dict) -> None:
+    """Print a formatted summary of a ``handle_query`` result to stdout.
+
+    Tool-route answers are omitted here because they are streamed during
+    ``format_tool_result``; RAG answers are printed in full.
+    """
     print("\n" + "=" * 60)
     print(f"Query : {result['query']}")
     print(f"Route : {result['route']}")
@@ -286,7 +291,7 @@ if __name__ == "__main__":
     # If a query is passed as CLI arg, run just that
     if len(sys.argv) > 1:
         query = " ".join(sys.argv[1:])
-        result = handle_query(query, verbose=True)
+        result = handle_query(query)
         print_result(result)
         sys.exit(0)
 

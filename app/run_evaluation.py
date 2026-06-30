@@ -1,15 +1,14 @@
-"""
-Automated evaluation runner for the Northstar Insights RAG assistant.
+"""Automated evaluation runner for the Northstar Insights RAG assistant.
 
-Runs all 16 evaluation questions from the assignment brief through the pipeline,
-captures routing decisions, tool calls, and answers, and writes results to "results/evaluation_raw.json".
+Runs all 20 evaluation questions through the orchestration pipeline, captures
+routing decisions, tool calls, and answers, and writes raw results to
+``app/results/evaluation_raw.json``.
 
 Usage:
     python run_evaluation.py
 """
 
 import json
-import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -52,7 +51,16 @@ EVALUATION_QUESTIONS = [
 
 
 def run_all_evaluations(handle_query, k: int = 8) -> list[dict]:
-    """Run every evaluation question through the pipeline and collect results."""
+    """Run every evaluation question through ``handle_query`` and collect results.
+
+    Args:
+        handle_query: The orchestration function from ``main``.
+        k: Number of chunks to retrieve for RAG routes.
+
+    Returns:
+        A list of per-question result dicts with route, tool metadata, answer,
+        sources, and any error message.
+    """
     results = []
 
     for item in EVALUATION_QUESTIONS:
@@ -97,6 +105,7 @@ def run_all_evaluations(handle_query, k: int = 8) -> list[dict]:
 
 
 def write_raw_json(results: list[dict]) -> None:
+    """Write evaluation results to ``app/results/evaluation_raw.json``."""
     payload = {
         "generated_at": datetime.now().isoformat(),
         "question_count": len(results),
@@ -107,6 +116,7 @@ def write_raw_json(results: list[dict]) -> None:
 
 
 def print_summary(results: list[dict]) -> None:
+    """Print a route breakdown and error count for the evaluation run."""
     by_route = {}
     for r in results:
         by_route[r["route"]] = by_route.get(r["route"], 0) + 1

@@ -1,8 +1,8 @@
-"""
-tools.py — Deterministic tools for the Northstar Insights RAG assistant.
+"""Deterministic tools for the Northstar Insights RAG assistant.
 
 Each tool is a plain Python function with a Pydantic input schema.
-Tool definitions (for LLM function-calling) are exported as TOOL_DEFINITIONS.
+``TOOL_DEFINITIONS`` describes them for LLM argument extraction; ``TOOL_REGISTRY``
+maps names to callables for ``dispatch_tool``.
 """
 
 import csv
@@ -33,6 +33,7 @@ DISCOUNTS: dict[str, float] = {
 }
 
 def _load_tickets() -> list[dict]:
+    """Load support tickets from ``data/support_tickets.csv``."""
     tickets = []
     with TICKETS_PATH.open(encoding="utf-8") as f:
         for row in csv.DictReader(f):
@@ -43,6 +44,8 @@ def _load_tickets() -> list[dict]:
 # Tool 1: Pricing Calculator
 
 class PricingInput(BaseModel):
+    """Validated inputs for ``calculate_pricing``."""
+
     plan: str
     contract: str = "monthly"          # "monthly" | "annual"
     customer_type: str = "standard"    # "standard" | "nonprofit"
@@ -93,7 +96,7 @@ def calculate_pricing(plan: str, contract: str = "monthly", customer_type: str =
     if inputs.customer_type == "nonprofit":
         eligible["nonprofit"] = DISCOUNTS["nonprofit"]
 
-    # Apply highest single discount (no stacking)
+    # Apply highest single discount
     if eligible:
         best_label = max(eligible, key=lambda k: eligible[k])
         applied_discount_pct = eligible[best_label]
@@ -107,7 +110,7 @@ def calculate_pricing(plan: str, contract: str = "monthly", customer_type: str =
     if inputs.contract == "annual":
         annual_subscription = round(discounted_monthly * 12, 2)
     else:
-        annual_subscription = round(discounted_monthly * 12, 2)  # projected
+        annual_subscription = round(discounted_monthly * 12, 2)
 
     first_year_total = round(annual_subscription + impl_fee, 2)
 
@@ -129,6 +132,8 @@ def calculate_pricing(plan: str, contract: str = "monthly", customer_type: str =
 # Tool 2: Support Ticket Lookup
 
 class TicketLookupInput(BaseModel):
+    """Optional filters for ``lookup_tickets``."""
+
     customer: Optional[str] = None
     status: Optional[str] = None       # "Open" | "In Progress" | "Resolved"
     priority: Optional[str] = None     # "Low" | "Medium" | "High" | "Critical"
@@ -175,7 +180,6 @@ def lookup_tickets(
 
 # Tool 3: Renewal Risk Classifier
 
-# Renewal dates from sales_notes.md
 RENEWAL_DATES: dict[str, str] = {
     "greenmart": "2026-02-28",
     "urbanbasket": "2026-01-15",
@@ -183,6 +187,8 @@ RENEWAL_DATES: dict[str, str] = {
 }
 
 class RenewalRiskInput(BaseModel):
+    """Customer name for ``classify_renewal_risk`` (must be a known account)."""
+
     customer: str
 
     @field_validator("customer")
@@ -221,7 +227,6 @@ def classify_renewal_risk(customer: str) -> dict:
     reasons = []
     risk = "Low"
 
-    # High risk: any Critical open ticket
     if critical_open:
         risk = "High"
         for t in critical_open:
@@ -229,7 +234,6 @@ def classify_renewal_risk(customer: str) -> dict:
                 f"Critical open ticket {t['ticket_id']}: {t['summary']}"
             )
 
-    # Medium risk: 2+ open tickets or renewal within 90 days
     if risk != "High":
         if len(open_tickets) >= 2:
             risk = "Medium"
@@ -238,7 +242,8 @@ def classify_renewal_risk(customer: str) -> dict:
                 + ", ".join(t["ticket_id"] for t in open_tickets)
             )
         if days_to_renewal <= 90:
-            risk = max(risk, "Medium")  # doesn't downgrade High
+            if risk == "Low":
+                risk = "Medium"
             reasons.append(
                 f"Renewal date {renewal_str} is {days_to_renewal} days away (within 90-day window)"
             )
@@ -258,7 +263,6 @@ def classify_renewal_risk(customer: str) -> dict:
 
 # Tool 4: Project Release Finder
 
-# Structured project data from project_updates.md
 PROJECTS = [
     {
         "name": "Shopify Connector Stabilization",
@@ -335,7 +339,6 @@ def find_relevant_projects(customer: Optional[str] = None, category: Optional[st
                 "relevance": why,
             })
 
-    # Sort by target release date ascending
     results.sort(key=lambda x: x["target_release"])
 
     return {
@@ -347,15 +350,15 @@ def find_relevant_projects(customer: Optional[str] = None, category: Optional[st
 
 # Tool 5: PTO Eligibility Checker
 
-# Policy constants from hr_policy.md
 PTO_DAYS_PER_YEAR = 20
 PTO_CARRYOVER_MAX = 5
 SICK_DAYS_PER_YEAR = 8
-ADVANCE_NOTICE_DAYS = 10        # business days required for vacations > 3 consecutive days
-ADVANCE_NOTICE_THRESHOLD = 3    # consecutive days that trigger the notice requirement
-
+ADVANCE_NOTICE_DAYS = 10        
+ADVANCE_NOTICE_THRESHOLD = 3   
 
 class PTOInput(BaseModel):
+    """Validated inputs for ``check_pto_eligibility``."""
+
     duration_days: int
     advance_notice_business_days: int
     pto_used_ytd: int = 0
@@ -405,7 +408,6 @@ def check_pto_eligibility(
     issues = []
     checks = []
 
-    # Check 1: sufficient balance
     if duration_days > remaining:
         issues.append(
             f"Insufficient PTO balance: requesting {duration_days} days but only {remaining} available"
@@ -418,7 +420,6 @@ def check_pto_eligibility(
             "detail": f"{remaining} days available, {duration_days} requested",
         })
 
-    # Check 2: advance notice for longer vacations
     if duration_days > ADVANCE_NOTICE_THRESHOLD:
         if advance_notice_business_days < ADVANCE_NOTICE_DAYS:
             issues.append(
@@ -590,7 +591,6 @@ TOOL_DEFINITIONS = [
     },
 ]
 
-# Tool dispatcher — called by main.py orchestrator
 TOOL_REGISTRY = {
     "calculate_pricing": calculate_pricing,
     "lookup_tickets": lookup_tickets,
@@ -601,7 +601,12 @@ TOOL_REGISTRY = {
 
 
 def dispatch_tool(name: str, arguments: dict) -> dict:
-    """Call a tool by name with the given arguments. Raises KeyError if unknown."""
+    """Call a tool by name with the given keyword arguments.
+
+    Raises:
+        KeyError: If ``name`` is not in ``TOOL_REGISTRY``.
+        TypeError, ValueError: If arguments are missing or invalid (from Pydantic).
+    """
     if name not in TOOL_REGISTRY:
         raise KeyError(f"Unknown tool '{name}'. Available: {list(TOOL_REGISTRY.keys())}")
     return TOOL_REGISTRY[name](**arguments)

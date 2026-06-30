@@ -1,20 +1,25 @@
 """RAG pipeline: chunk documents, index in ChromaDB, retrieve context, answer via Ollama."""
 
-import json
 import csv
+import json
 import os
 import re
 from pathlib import Path
 
 import chromadb
 import httpx
-from chromadb.errors import NotFoundError
+from chromadb.config import Settings
 from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import ONNXMiniLM_L6_V2
 
 from prompts import build_rag_messages as build_messages
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
-CHROMA_DIR = Path(__file__).resolve().parent.parent / ".chroma"
+CHROMA_DIR = Path(
+    os.getenv(
+        "CHROMA_PERSIST_DIR",
+        Path.home() / ".cache" / "rag-system-tool-creation" / "chroma",
+    )
+)
 MANIFEST_PATH = CHROMA_DIR / "manifest.json"
 COLLECTION_NAME = "knowledge_base"
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
@@ -24,10 +29,10 @@ _collection = None
 
 
 def load_markdown_sections(path: Path) -> list[dict]:
-    """Split a markdown file into chunks at each ## heading.
+    """Split a markdown file into chunks at each ``##`` heading.
 
-    Returns a list of dicts with keys: text, source, section, type.
-    Content before the first ## becomes its own chunk titled from the # heading.
+    Returns dicts with keys: ``text``, ``source``, ``section``, ``type``.
+    Content before the first ``##`` becomes its own chunk titled from the ``#`` heading.
     """
     content = path.read_text(encoding="utf-8")
     chunks = []
@@ -90,7 +95,7 @@ def load_csv_rows(path: Path) -> list[dict]:
 
 
 def load_documents() -> list[dict]:
-    """Load and chunk all .md and .csv files from the data directory."""
+    """Load and chunk all ``.md`` and ``.csv`` files from the data directory."""
     docs = []
     for path in sorted(DATA_DIR.iterdir()):
         if path.suffix == ".md":
@@ -101,7 +106,7 @@ def load_documents() -> list[dict]:
 
 
 def _data_manifest() -> dict:
-    """Fingerprint data files so we know when the index is stale."""
+    """Return a fingerprint of data file sizes and mtimes for staleness checks."""
     manifest = {}
     for path in sorted(DATA_DIR.iterdir()):
         if path.suffix in {".md", ".csv"}:
@@ -111,12 +116,14 @@ def _data_manifest() -> dict:
 
 
 def _load_manifest() -> dict | None:
+    """Load the saved index manifest, or ``None`` if it does not exist."""
     if not MANIFEST_PATH.exists():
         return None
     return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
 
 def _save_manifest(manifest: dict, chunk_count: int) -> None:
+    """Persist the data fingerprint and chunk count after a successful rebuild."""
     CHROMA_DIR.mkdir(parents=True, exist_ok=True)
     MANIFEST_PATH.write_text(
         json.dumps({"files": manifest, "chunk_count": chunk_count}, indent=2),
@@ -125,7 +132,7 @@ def _save_manifest(manifest: dict, chunk_count: int) -> None:
 
 
 def _try_load_persisted_index(client, embedding_fn, manifest: dict):
-    """Return the existing collection if on-disk index matches current data."""
+    """Return the existing collection if the on-disk index matches current data."""
     stored = _load_manifest()
     if not stored or stored.get("files") != manifest:
         return None
@@ -145,18 +152,23 @@ def _try_load_persisted_index(client, embedding_fn, manifest: dict):
     return collection
 
 
-def build_index(force: bool = False):
+def build_index(force: bool = False) -> tuple:
     """Load or build the ChromaDB index, persisting to disk between runs.
 
-    Rebuilds only when data files change, the index is missing, or force=True.
-    Sets the module-level _collection cache.
-    Returns the collection and loaded document chunks (empty list on cache hit).
+    Rebuilds when data files change, the index is missing, or ``force=True``.
+    Sets the module-level ``_collection`` cache.
+
+    Returns:
+        ``(collection, documents)`` where ``documents`` is empty on a cache hit.
     """
     global _collection
 
     print("Connecting to ChromaDB...", flush=True)
     CHROMA_DIR.mkdir(parents=True, exist_ok=True)
-    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+    client = chromadb.PersistentClient(
+        path=str(CHROMA_DIR),
+        settings=Settings(allow_reset=True, anonymized_telemetry=False),
+    )
 
     print("Loading embedding model (ONNX)...", flush=True)
     embedding_fn = ONNXMiniLM_L6_V2()
@@ -177,11 +189,7 @@ def build_index(force: bool = False):
     print(f"  Found {len(documents)} chunks", flush=True)
     print("Indexing chunks...", flush=True)
 
-    try:
-        client.delete_collection(COLLECTION_NAME)
-    except NotFoundError:
-        pass
-
+    client.reset()
     collection = client.create_collection(
         COLLECTION_NAME,
         embedding_function=embedding_fn,
@@ -210,7 +218,7 @@ def get_index():
 def retrieve(query: str, k: int = 5) -> list[dict]:
     """Return the top-k most similar chunks for a query.
 
-    Each result is a dict with "text" and "metadata" (source, section, type, etc.).
+    Each result is a dict with ``text`` and ``metadata`` (source, section, type, etc.).
     """
     collection = get_index()
 
@@ -234,8 +242,8 @@ def ask_ollama(
 ) -> str:
     """Send messages to the Ollama chat API and return the model's reply.
 
-    Streams tokens to stdout by default. Raises RuntimeError on connection,
-    missing model, or timeout errors.
+    Streams tokens to stdout when ``stream=True``. Raises ``RuntimeError`` on
+    connection failures, missing models, or timeouts.
     """
     payload = {
         "model": model,
@@ -289,14 +297,14 @@ def ask_ollama(
     except httpx.ReadTimeout as exc:
         raise RuntimeError(
             f"Ollama timed out waiting for '{model}'. "
-            "Try: ollama pull llama3.2:3b"
+            "Try a smaller model: ollama pull llama3.2:3b"
         ) from exc
 
 
 def ask(query: str, k: int = 5, model: str = OLLAMA_MODEL) -> dict:
     """Run the full RAG pipeline: retrieve context, prompt Ollama, return the answer.
 
-    Returns a dict with keys: query, answer, sources (the retrieved chunks).
+    Returns a dict with keys: ``query``, ``answer``, ``sources``.
     """
     chunks = retrieve(query, k=k)
     messages = build_messages(query, chunks)
