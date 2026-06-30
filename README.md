@@ -84,6 +84,8 @@ export OLLAMA_MODEL="llama3.2:3b"                 # default
 
 ```
 app/
+  results/
+    evaluation_raw.json
   main.py            # Orchestration: routes queries to tools or RAG
   rag.py             # Document loading, chunking, indexing, retrieval, generation
   tools.py           # Pricing calculator, ticket lookup, renewal risk, project finder, PTO checker
