@@ -1,7 +1,7 @@
 """RAG pipeline: chunk documents, index in ChromaDB, retrieve context, answer via Ollama."""
 
-import csv
 import json
+import csv
 import os
 import re
 from pathlib import Path
@@ -10,6 +10,8 @@ import chromadb
 import httpx
 from chromadb.errors import NotFoundError
 from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import ONNXMiniLM_L6_V2
+
+from prompts import build_rag_messages as build_messages
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 COLLECTION_NAME = "knowledge_base"
@@ -161,38 +163,6 @@ def retrieve(query: str, k: int = 5) -> list[dict]:
     return [
         {"text": doc, "metadata": meta}
         for doc, meta in zip(results["documents"][0], results["metadatas"][0])
-    ]
-
-
-def build_messages(query: str, chunks: list[dict]) -> list[dict]:
-    """Build Ollama chat messages with a system prompt and retrieved context."""
-    context = "\n\n---\n\n".join(
-        f"Source: {chunk['metadata']['source']} | {chunk['metadata']['section']}\n"
-        f"{chunk['text']}"
-        for chunk in chunks
-    )
-
-    system = """You are an internal assistant for Northstar Insights employees.
-    Answer the user's question using ONLY the context excerpts below.
-
-    The context is authorized internal company data — summarize it directly when asked.
-
-    If the question asks "why", "which", "compare", "recommend", or "evaluate", combine evidence from every relevant retrieved document into a single answer.
-
-    End your answer with a short "Sources:" line listing the file and section you used.
-
-    If the context does not contain the answer, say: "I could not find this in the knowledge base."
-
-    Do not refuse to answer because a customer or company name appears in the context."""
-
-    user = f"""Context:
-    {context}
-
-    Question: {query}"""
-
-    return [
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
     ]
 
 

@@ -1,0 +1,848 @@
+{
+  "generated_at": "2026-06-30T03:02:46.315238",
+  "question_count": 20,
+  "results": [
+    {
+      "id": 1,
+      "category": "Basic Retrieval",
+      "query": "How many PTO days do full-time employees receive?",
+      "route": "rag_fallback",
+      "tool_name": "check_pto_eligibility",
+      "tool_args": {
+        "pto_used_ytd": 0,
+        "pto_carried_over": 0
+      },
+      "tool_result": null,
+      "answer": "Full-time employees receive 20 days of paid time off per calendar year.\n\nSources: hr_policy.md | Paid Time Off",
+      "sources": [
+        {
+          "source": "hr_policy.md",
+          "section": "Paid Time Off"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Sick Leave"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Remote Work"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Parental Leave"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Implementation Fees"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Learning Budget"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Northstar Analytics HR Policy Handbook"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Plans"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 2,
+      "category": "Basic Retrieval",
+      "query": "What data sources does Northstar Insights support?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "Northstar Insights supports ingestion from the following sources:\n\n* Shopify\n* Salesforce Commerce Cloud\n* Snowflake\n* BigQuery\n* Amazon S3\n* CSV uploads\n\nSources: product_docs.md | Data Sources",
+      "sources": [
+        {
+          "source": "product_docs.md",
+          "section": "Product Overview"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Northstar Insights Product Documentation"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Security"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Data Sources"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Northstar Analytics HR Policy Handbook"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "GreenMart"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Northstar Pricing and Packaging Rules"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Plans"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 3,
+      "category": "Basic Retrieval",
+      "query": "How often do customer segments refresh?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "Customer segments refresh every 24 hours.\n\nSources: product_docs.md | Customer Segmentation",
+      "sources": [
+        {
+          "source": "product_docs.md",
+          "section": "Customer Segmentation"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1006"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Forecasting Module"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Forecast Refresh Reliability"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "GreenMart"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1002"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Shopify Connector Stabilization"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1001"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 4,
+      "category": "Basic Retrieval",
+      "query": "What encryption is used at rest?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "At rest, Northstar Insights uses AES-256 encryption.\n\nSources:\nproduct_docs.md | Security\nproduct_docs.md | Data Sources",
+      "sources": [
+        {
+          "source": "product_docs.md",
+          "section": "Security"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1005"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Northstar Insights Product Documentation"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Data Sources"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Product Overview"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Plans"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Northstar Analytics HR Policy Handbook"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Forecasting Module"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 5,
+      "category": "Tool Use",
+      "query": "Calculate the first-year cost for the Growth Plan on an annual contract for a nonprofit customer.",
+      "route": "tool",
+      "tool_name": "calculate_pricing",
+      "tool_args": {
+        "plan": "growth",
+        "contract": "annual",
+        "customer_type": "nonprofit"
+      },
+      "tool_result": {
+        "plan": "Growth",
+        "contract": "annual",
+        "customer_type": "nonprofit",
+        "base_monthly_price_usd": 6500,
+        "eligible_discounts": {
+          "annual": "12%",
+          "nonprofit": "20%"
+        },
+        "applied_discount": "nonprofit",
+        "applied_discount_pct": "20%",
+        "discounted_monthly_price_usd": 5200.0,
+        "annual_subscription_usd": 62400.0,
+        "implementation_fee_usd": 8000,
+        "first_year_total_usd": 70400.0
+      },
+      "answer": "The first-year cost for the Growth Plan on an annual contract for a nonprofit customer is $70,400.\n\nThis total includes the discounted monthly price of $5,200 per month, multiplied by 12 months in a year, plus an implementation fee of $8,000 and no additional discounts. \n\nSource: calculate_pricing",
+      "sources": null,
+      "error": null
+    },
+    {
+      "id": 6,
+      "category": "Tool Use",
+      "query": "Show all open support tickets for GreenMart.",
+      "route": "tool",
+      "tool_name": "lookup_tickets",
+      "tool_args": {
+        "customer": "GreenMart",
+        "status": "Open"
+      },
+      "tool_result": {
+        "filters": {
+          "customer": "GreenMart",
+          "status": "Open",
+          "priority": null,
+          "category": null
+        },
+        "count": 2,
+        "tickets": [
+          {
+            "ticket_id": "T-1001",
+            "customer": "GreenMart",
+            "date": "2025-10-01",
+            "priority": "High",
+            "category": "Forecasting",
+            "summary": "Weekly forecast failed to refresh for 12 stores in the Northeast region.",
+            "status": "Open"
+          },
+          {
+            "ticket_id": "T-1004",
+            "customer": "GreenMart",
+            "date": "2025-10-06",
+            "priority": "Critical",
+            "category": "Inventory Alerts",
+            "summary": "False positive stockout alerts triggered for seasonal SKUs.",
+            "status": "Open"
+          }
+        ]
+      },
+      "answer": "Here are the open support tickets for GreenMart:\n\nThere are currently two open support tickets for GreenMart.\n\n1. Ticket ID: T-1001\n   Date: October 1, 2025\n   Priority: High\n   Category: Forecasting\n   Summary: Weekly forecast failed to refresh for 12 stores in the Northeast region.\n   Status: Open\n\n2. Ticket ID: T-1004\n   Date: October 6, 2025\n   Priority: Critical\n   Category: Inventory Alerts\n   Summary: False positive stockout alerts triggered for seasonal SKUs.\n   Status: Open\n\nSource: lookup_tickets",
+      "sources": null,
+      "error": null
+    },
+    {
+      "id": 7,
+      "category": "Tool Use",
+      "query": "What is GreenMart's renewal risk?",
+      "route": "tool",
+      "tool_name": "classify_renewal_risk",
+      "tool_args": {
+        "customer": "GreenMart"
+      },
+      "tool_result": {
+        "customer": "Greenmart",
+        "risk": "High",
+        "renewal_date": "2026-02-28",
+        "days_to_renewal": -122,
+        "open_ticket_count": 2,
+        "reasons": [
+          "Critical open ticket T-1004: False positive stockout alerts triggered for seasonal SKUs."
+        ]
+      },
+      "answer": "GreenMart is at high renewal risk due to an open ticket count of 2 and a critical issue with false positive stockout alerts triggered for seasonal SKUs (Ticket ID: T-1004). The customer's renewal date is set for February 28, 2026, which is just over 122 days away. This indicates that GreenMart needs to address the underlying cause of these issues before its next scheduled renewal period.\n\nSource: classify_renewal_risk",
+      "sources": null,
+      "error": null
+    },
+    {
+      "id": 8,
+      "category": "Tool Use",
+      "query": "Is a 5-day PTO request valid if submitted 7 business days in advance?",
+      "route": "tool",
+      "tool_name": "check_pto_eligibility",
+      "tool_args": {
+        "duration_days": 5,
+        "advance_notice_business_days": 7
+      },
+      "tool_result": {
+        "eligible": false,
+        "duration_days": 5,
+        "advance_notice_business_days": 7,
+        "pto_available": 20,
+        "checks": [
+          {
+            "check": "PTO balance",
+            "passed": true,
+            "detail": "20 days available, 5 requested"
+          },
+          {
+            "check": "Advance notice",
+            "passed": false
+          }
+        ],
+        "issues": [
+          "Insufficient advance notice: 5-day vacation requires 10 business days notice, but only 7 provided"
+        ],
+        "policy_note": "Full-time employees receive 20 PTO days/year with up to 5 days carryover. Vacations longer than 3 consecutive days require 10 business days advance notice."
+      },
+      "answer": "Based on the check_pto_eligibility tool result, a 5-day PTO request submitted 7 business days in advance is not valid.\n\nThe reason for this is that the policy requires 10 business days notice for vacations longer than 3 consecutive days, but only 7 business days were provided. This falls short of the required notice period.\n\nAdditionally, the tool result indicates that there are sufficient PTO days available (20) and no issues with the PTO balance. However, the insufficient advance notice is a critical factor in determining eligibility for this request.\n\nSource: check_pto_eligibility",
+      "sources": null,
+      "error": null
+    },
+    {
+      "id": 9,
+      "category": "Multi-Hop RAG",
+      "query": "Why is UrbanBasket a good candidate for upgrading to Growth?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "UrbanBasket is a good candidate for upgrading to Growth due to their current pain points, which include:\n\n* Shopify connector reliability issues, as evident from Ticket T-1002 (status: In Progress) and the ongoing stabilization efforts of the Shopify Connector.\n* The need for customer segmentation, highlighted in Ticket T-1006 (status: Open), which is a key feature of the Growth Plan.\n\nThese pain points suggest that UrbanBasket requires more advanced features and support to manage their data effectively, making them a good candidate for upgrading to the Growth Plan.\n\nSources:\nsales_notes.md | UrbanBasket\nsupport_tickets.csv | T-1002\nT-1006",
+      "sources": [
+        {
+          "source": "sales_notes.md",
+          "section": "UrbanBasket"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Shopify Connector Stabilization"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "GreenMart"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1006"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1002"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Data Sources"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "StyleHub"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1008"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 10,
+      "category": "Multi-Hop RAG",
+      "query": "Which internal projects are relevant to StyleHub?",
+      "route": "tool",
+      "tool_name": "find_relevant_projects",
+      "tool_args": {
+        "customer": "StyleHub",
+        "category": "internal"
+      },
+      "tool_result": {
+        "filters": {
+          "customer": "StyleHub",
+          "category": "internal"
+        },
+        "count": 1,
+        "projects": [
+          {
+            "project": "Dashboard Permissions Redesign",
+            "owner": "Product Experience Team",
+            "status": "Planned",
+            "target_release": "2026-01-20",
+            "description": "More granular export permissions for viewer and analyst roles.",
+            "relevance": [
+              "Directly relevant to Stylehub"
+            ]
+          }
+        ]
+      },
+      "answer": "Based on your search for internal projects relevant to StyleHub, we found one project that matches your criteria.\n\nThe project is titled \"Dashboard Permissions Redesign\" and is owned by the Product Experience Team. The current status of the project is Planned, with a target release date of January 20th, 2026.\n\nThis project is directly relevant to StyleHub, as indicated by its relevance score. The description of the project includes more granular export permissions for viewer and analyst roles, which may be of interest to StyleHub stakeholders.\n\nSource: find_relevant_projects",
+      "sources": null,
+      "error": null
+    },
+    {
+      "id": 11,
+      "category": "Multi-Hop RAG",
+      "query": "What issues should the customer success team discuss with GreenMart before renewal?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "Based on the context excerpts, the customer success team should discuss the following issues with GreenMart before renewal:\n\n1. **Forecasting reliability**: The weekly forecast refresh job failed to refresh for 12 stores in the Northeast region, and there are concerns about false positive inventory alerts.\n2. **False positive inventory alerts**: There were critical false positive stockout alerts triggered for seasonal SKUs, which may be causing operational issues.\n3. **Need pharmacy-specific dashboards**: GreenMart is evaluating whether to expand Northstar Insights to their pharmacy division, indicating a need for tailored solutions.\n\nSources:\n- sales_notes.md | GreenMart\n- project_updates.md | Forecast Refresh Reliability\n- support_tickets.csv | T-1001 and T-1004",
+      "sources": [
+        {
+          "source": "sales_notes.md",
+          "section": "GreenMart"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Forecast Refresh Reliability"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1001"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1004"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "UrbanBasket"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Shopify Connector Stabilization"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Inventory Alert Calibration"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1006"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 12,
+      "category": "Multi-Hop RAG",
+      "query": "Which customers are affected by integration issues?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "According to the context excerpts, two customers are mentioned as being affected by integration issues:\n\n1. UrbanBasket (T-1002) - experiencing intermittent timeouts during nightly syncs with their Shopify connector.\n2. StyleHub (T-1008) - facing BigQuery ingestion lag exceeding 9 hours.\n\nSources: support_tickets.csv | T-1002, project_updates.md, and support_tickets.csv | T-1008",
+      "sources": [
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1002"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Shopify Connector Stabilization"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1006"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Customer Segmentation"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "GreenMart"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "UrbanBasket"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1008"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "StyleHub"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 13,
+      "category": "Ambiguity / Robustness",
+      "query": "Does the platform support Azure Synapse?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "No, the platform does not directly support Azure Synapse as a data source. However, it supports BigQuery, which can be used to connect to Azure Synapse.\n\nSources:\nproduct_docs.md | Data Sources\nData Sources\n- Shopify\n- Salesforce Commerce Cloud\n- Snowflake\n- BigQuery\n- Amazon S3\n- CSV uploads",
+      "sources": [
+        {
+          "source": "product_docs.md",
+          "section": "Northstar Insights Product Documentation"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Data Sources"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Security"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Shopify Connector Stabilization"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Product Overview"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1002"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Plans"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Forecast Refresh Reliability"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 14,
+      "category": "Ambiguity / Robustness",
+      "query": "Can a customer with 4 months of sales history use forecasting?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "No, a customer with less than 6 months of historical data cannot use the forecasting module. According to the context excerpt from product_docs.md | Forecasting Module, \"Customers with less than 6 months of historical data cannot use the forecasting module.\"\n\nSources: product_docs.md | Forecasting Module",
+      "sources": [
+        {
+          "source": "product_docs.md",
+          "section": "Forecasting Module"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1001"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Plans"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Forecast Refresh Reliability"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "GreenMart"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "Sales Enablement Notes"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Inventory Alert Calibration"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Inventory Alerts"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 15,
+      "category": "Ambiguity / Robustness",
+      "query": "Can nonprofit annual discounts be combined?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "No, nonprofit annual discounts cannot be combined. According to the pricing rules, \"Discounts cannot be stacked. If multiple discounts apply, use the highest single discount.\"\n\nSources: pricing_rules.md | Discounts",
+      "sources": [
+        {
+          "source": "pricing_rules.md",
+          "section": "Discounts"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Paid Time Off"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Learning Budget"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Implementation Fees"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Northstar Pricing and Packaging Rules"
+        },
+        {
+          "source": "hr_policy.md",
+          "section": "Sick Leave"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "Sales Enablement Notes"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "GreenMart"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 16,
+      "category": "Ambiguity / Robustness",
+      "query": "Who owns the fix for false positive inventory alerts?",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "The Applied AI team is responsible for recalibrating stockout risk thresholds to reduce false positive alerts for seasonal SKUs, which includes addressing the issue of false positive inventory alerts.\n\nSources:\n- project_updates.md | Inventory Alert Calibration\n- product_docs.md | Inventory Alerts",
+      "sources": [
+        {
+          "source": "project_updates.md",
+          "section": "Inventory Alert Calibration"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Inventory Alerts"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1004"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "GreenMart"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Forecast Refresh Reliability"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Shopify Connector Stabilization"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1005"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1002"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 17,
+      "category": "Structured Output",
+      "query": "Return open tickets grouped by customer in JSON.",
+      "route": "tool",
+      "tool_name": "lookup_tickets",
+      "tool_args": {
+        "customer": null,
+        "status": "Open",
+        "priority": null,
+        "category": null
+      },
+      "tool_result": {
+        "filters": {
+          "customer": null,
+          "status": "Open",
+          "priority": null,
+          "category": null
+        },
+        "count": 4,
+        "tickets": [
+          {
+            "ticket_id": "T-1001",
+            "customer": "GreenMart",
+            "date": "2025-10-01",
+            "priority": "High",
+            "category": "Forecasting",
+            "summary": "Weekly forecast failed to refresh for 12 stores in the Northeast region.",
+            "status": "Open"
+          },
+          {
+            "ticket_id": "T-1004",
+            "customer": "GreenMart",
+            "date": "2025-10-06",
+            "priority": "Critical",
+            "category": "Inventory Alerts",
+            "summary": "False positive stockout alerts triggered for seasonal SKUs.",
+            "status": "Open"
+          },
+          {
+            "ticket_id": "T-1006",
+            "customer": "UrbanBasket",
+            "date": "2025-10-08",
+            "priority": "Medium",
+            "category": "Customer Segmentation",
+            "summary": "Segments not refreshing for loyalty customers.",
+            "status": "Open"
+          },
+          {
+            "ticket_id": "T-1008",
+            "customer": "StyleHub",
+            "date": "2025-10-10",
+            "priority": "High",
+            "category": "Integrations",
+            "summary": "BigQuery ingestion lag exceeding 9 hours.",
+            "status": "Open"
+          }
+        ]
+      },
+      "answer": "Here is the summary of open tickets grouped by customer in JSON format:\n\n{\n  \"GreenMart\": [\n    {\n      \"ticket_id\": \"T-1001\",\n      \"date\": \"2025-10-01\",\n      \"priority\": \"High\",\n      \"category\": \"Forecasting\",\n      \"summary\": \"Weekly forecast failed to refresh for 12 stores in the Northeast region.\",\n      \"status\": \"Open\"\n    },\n    {\n      \"ticket_id\": \"T-1004\",\n      \"date\": \"2025-10-06\",\n      \"priority\": \"Critical\",\n      \"category\": \"Inventory Alerts\",\n      \"summary\": \"False positive stockout alerts triggered for seasonal SKUs.\",\n      \"status\": \"Open\"\n    }\n  ],\n  \"UrbanBasket\": [\n    {\n      \"ticket_id\": \"T-1006\",\n      \"date\": \"2025-10-08\",\n      \"priority\": \"Medium\",\n      \"category\": \"Customer Segmentation\",\n      \"summary\": \"Segments not refreshing for loyalty customers.\",\n      \"status\": \"Open\"\n    }\n  ],\n  \"StyleHub\": [\n    {\n      \"ticket_id\": \"T-1008\",\n      \"date\": \"2025-10-10\",\n      \"priority\": \"High\",\n      \"category\": \"Integrations\",\n      \"summary\": \"BigQuery ingestion lag exceeding 9 hours.\",\n      \"status\": \"Open\"\n    }\n  ]\n}\n\nSource: lookup_tickets",
+      "sources": null,
+      "error": null
+    },
+    {
+      "id": 18,
+      "category": "Structured Output",
+      "query": "Create a customer risk table with customer, plan, renewal date, open tickets, and risk level.",
+      "route": "tool",
+      "tool_name": "lookup_tickets",
+      "tool_args": {
+        "customer": "string",
+        "status": "string",
+        "priority": "string",
+        "category": "string"
+      },
+      "tool_result": {
+        "filters": {
+          "customer": "string",
+          "status": "string",
+          "priority": "string",
+          "category": "string"
+        },
+        "count": 0,
+        "tickets": []
+      },
+      "answer": "Unfortunately, we do not have any customer risk data available in our system at this time.\n\nThe lookup_tickets tool was used with no filters applied, but it did not return any results. This means that there are currently no open tickets for customers that meet the specified criteria.\n\nSource: lookup_tickets",
+      "sources": null,
+      "error": null
+    },
+    {
+      "id": 19,
+      "category": "Structured Output",
+      "query": "List all target releases by date.",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "Here are the target release dates:\n\n* 2025-11-15 (Shopify Connector Stabilization)\n* 2025-12-01 (Forecast Refresh Reliability)\n* 2025-12-10 (Inventory Alert Calibration)\n\nSources:\nproject_updates.md | Target release: Forecast Refresh Reliability\nproject_updates.md | Target release: Shopify Connector Stabilization\nproject_updates.md | Target release: Inventory Alert Calibration",
+      "sources": [
+        {
+          "source": "project_updates.md",
+          "section": "Forecast Refresh Reliability"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Shopify Connector Stabilization"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Northstar Pricing and Packaging Rules"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "Sales Enablement Notes"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Inventory Alert Calibration"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Internal Project Updates"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Forecasting Module"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Plans"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": 20,
+      "category": "Structured Output",
+      "query": "Give me a sales prep brief for UrbanBasket with citations.",
+      "route": "rag",
+      "tool_name": null,
+      "tool_args": null,
+      "tool_result": null,
+      "answer": "**Sales Prep Brief for UrbanBasket**\n\nUrbanBasket is a fast-growing online grocery platform experiencing pain points in Shopify connector reliability, customer segmentation, and manual reporting burden.\n\n**Key Challenges:**\n\n1. **Shopify Connector Reliability**: The current Shopify connector is unreliable, causing issues during high-volume nightly syncs (Source: project_updates.md | Shopify Connector Stabilization).\n2. **Customer Segmentation**: UrbanBasket requires customer segmentation to refresh loyalty segments, but this feature is not currently working as expected (Source: support_tickets.csv | T-1006).\n3. **Manual Reporting Burden**: The current setup creates a manual reporting burden for stakeholders, which may hinder data-driven decision-making.\n\n**Opportunities:**\n\n1. **Upgrade to Growth Plan**: UrbanBasket is considering upgrading to the Growth Plan to address their growing needs (Source: sales_notes.md | UrbanBasket).\n2. **Integrate Additional Data Sources**: Northstar Insights supports ingestion from various sources, including Shopify, Salesforce Commerce Cloud, and Snowflake, which could provide additional insights for UrbanBasket's operations.\n\n**Recommendations:**\n\n1. Prioritize the stabilization of the Shopify connector to ensure reliable data syncs.\n2. Address the customer segmentation issue to enable loyalty program management.\n3. Explore Northstar Insights' pricing options to optimize reporting and analytics capabilities.\n\nSources:\n- sales_notes.md | UrbanBasket\n- project_updates.md | Shopify Connector Stabilization\n- support_tickets.csv | T-1006\n- product_docs.md | Data Sources",
+      "sources": [
+        {
+          "source": "sales_notes.md",
+          "section": "UrbanBasket"
+        },
+        {
+          "source": "project_updates.md",
+          "section": "Shopify Connector Stabilization"
+        },
+        {
+          "source": "support_tickets.csv",
+          "section": "T-1006"
+        },
+        {
+          "source": "product_docs.md",
+          "section": "Data Sources"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "Sales Enablement Notes"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "GreenMart"
+        },
+        {
+          "source": "pricing_rules.md",
+          "section": "Northstar Pricing and Packaging Rules"
+        },
+        {
+          "source": "sales_notes.md",
+          "section": "StyleHub"
+        }
+      ],
+      "error": null
+    }
+  ]
+}
