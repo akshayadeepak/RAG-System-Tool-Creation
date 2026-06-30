@@ -1,4 +1,4 @@
-# Northstar Insights RAG Assistant
+# Northstar RAG Assistant
 
 A GenAI assistant for an internal enterprise knowledge environment. Answers questions
 about HR policy, product documentation, pricing, support tickets, sales notes, and
