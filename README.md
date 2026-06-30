@@ -79,7 +79,8 @@ export OLLAMA_BASE_URL="http://localhost:11434"   # default
 export OLLAMA_MODEL="llama3.2:3b"                 # default
 ```
 
-Note: The very first run can take a while (~10-15 mins) for ChromaDB to load. However subsequent runs will run much faster.
+**Note:** The very first run can take a while (~10-15 mins) for ChromaDB to load. However subsequent runs will run much faster.
+
 ---
 
 ## Project Structure
