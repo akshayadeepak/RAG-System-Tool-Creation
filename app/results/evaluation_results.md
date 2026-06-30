@@ -1,9 +1,5 @@
 # Evaluation Results
 
-_Generated automatically on 2026-06-30 03:02_
-
-Each result below was produced by running the query through the live pipeline (`main.handle_query`). The **Correctness** column is left blank for manual grading against the expected answers in the assignment brief — fill in Correct / Partially Correct / Incorrect after review.
-
 ## Summary Table
 
 | # | Category | Query | Route | Tool | Correctness |

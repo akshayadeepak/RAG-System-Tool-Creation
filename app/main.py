@@ -101,10 +101,6 @@ def detect_tool(query: str) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Tool argument extraction
-# ---------------------------------------------------------------------------
-
 def extract_tool_args(query: str, tool_name: str) -> dict:
     """Ask the LLM to extract structured arguments for the given tool from the query."""
     tool_def = next((t for t in TOOL_DEFINITIONS if t["name"] == tool_name), None)
@@ -138,10 +134,6 @@ def extract_tool_args(query: str, tool_name: str) -> dict:
         print(f"[warn] Argument extraction failed: {e}", flush=True)
         return {}
 
-
-# ---------------------------------------------------------------------------
-# Tool result formatting
-# ---------------------------------------------------------------------------
 
 def format_tool_result(query: str, tool_name: str, result: dict) -> str:
     """Ask the LLM to format a tool result into a natural-language response."""
@@ -181,10 +173,6 @@ def format_tool_result(query: str, tool_name: str, result: dict) -> str:
 
     return "".join(parts)
 
-
-# ---------------------------------------------------------------------------
-# Main query handler
-# ---------------------------------------------------------------------------
 
 def handle_query(query: str, k: int = 8, verbose: bool = False) -> dict:
     """
@@ -255,10 +243,6 @@ def handle_query(query: str, k: int = 8, verbose: bool = False) -> dict:
             "sources": rag_result["sources"],
         }
 
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 def print_result(result: dict) -> None:
     print("\n" + "=" * 60)
