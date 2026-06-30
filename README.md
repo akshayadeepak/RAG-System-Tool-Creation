@@ -6,7 +6,7 @@ internal projects — combining retrieval-augmented generation with deterministi
 calls for operational queries (pricing calculations, ticket lookups, renewal risk,
 PTO eligibility).
 
-See [`design_note.md`](./design_note.md) for architecture, design decisions, and
+See [`design_decisions.md`](./design_decisions.md) for architecture, design decisions, and
 known limitations.
 
 ---
@@ -100,7 +100,7 @@ data/
 examples/
   demo_queries.md       # 10 example queries with outputs
   evaluation_results.md # All evaluation questions, graded for correctness
-design_note.md
+design_decisions.md
 requirements.txt
 README.md
 ```
